@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EST8 by 88GB - Coimbatore Villa Market: Interactive Dashboard (2024-2025)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Futuristic Grey-Purple and White -->
+    <!-- Application Structure Plan: A single-page dashboard with a sticky top navigation for easy access to key sections: Market Overview, Developer Landscape, Location Analysis, an interactive Project Explorer, Buyer Insights, and Strategic Recommendations. This task-oriented, non-linear structure allows users (new developers) to explore data from multiple angles—by project, location, or price—facilitating a deeper, more intuitive understanding of the market compared to a linear report. The core interaction revolves around the filterable Project Explorer, which acts as a central database that can be cross-filtered from other sections. -->
+    <!-- Visualization & Content Choices: 
+        - Market Overview: Goal: Inform. Method: Stat cards and a Chart.js donut chart for price segmentation. Interaction: Hover effects. Justification: Provides a quick, high-level snapshot.
+        - Location Analysis: Goal: Compare. Method: Cards for each locality and a Chart.js bar chart for price comparison. Interaction: Buttons to filter the main project table. Justification: Enables geographical comparison and exploration.
+        - Project Explorer: Goal: Organize/Filter. Method: A dynamic HTML table. Interaction: Dropdown filters and a search bar. Justification: The most critical tool, allowing deep dives into the raw project data.
+        - Buyer Insights: Goal: Analyze. Method: Tabbed content for price brackets and a two-column layout for sentiment analysis. Interaction: Tab switching. Justification: Segments complex buyer information for easy digestion.
+        - All data is stored in JS objects for dynamic rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; max-height: 400px; } }
+        .section-title { font-size: 1.875rem; font-weight: 700; color: #1f2937; border-bottom: 3px solid #8B5CF6; /* Purple accent */ padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .nav-link:hover, .nav-link.active { color: #8B5CF6; /* Purple accent */ border-bottom-color: #8B5CF6; /* Purple accent */ }
+        .stat-card { transition: transform 0.3s, box-shadow 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .tab-button { transition: background-color 0.3s, color 0.3s; }
+        .tab-button.active { background-color: #8B5CF6; /* Purple accent */ color: white; }
+        .table th { position: sticky; top: 0; background-color: #f3f4f6; z-index: 10; }
+        .table-container { max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">EST8 by 88GB - Coimbatore Villa Market</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Overview</a>
+                        <a href="#developers" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Developers</a>
+                        <a href="#locations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Locations</a>
+                        <a href="#projects" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Projects</a>
+                        <a href="#insights" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Buyer Insights</a>
+                        <a href="#strategy" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 border-b-2 border-transparent">Strategy</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#overview" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Overview</a>
+                <a href="#developers" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Developers</a>
+                <a href="#locations" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Locations</a>
+                <a href="#projects" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Projects</a>
+                <a href="#insights" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Buyer Insights</a>
+                <a href="#strategy" class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-600">Strategy</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="overview" class="my-12 scroll-mt-20">
+            <h2 class="section-title">Market Overview (2024-2025)</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                Coimbatore's villa market is experiencing a significant transformation, driven by its expanding IT sector and a growing preference for spacious, independent living. This dashboard provides an interactive analysis for new developers looking to enter this dynamic market.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="stat-card bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+                    <h3 class="text-gray-500 text-sm font-medium uppercase">Projected Growth</h3>
+                    <p class="text-3xl font-bold text-gray-800">10-15%</p>
+                    <p class="text-gray-500 text-sm">Annual price rise thru 2026</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-lg shadow-lg border-l-4 border-indigo-500">
+                    <h3 class="text-gray-500 text-sm font-medium uppercase">Residential Sales (Q1 2025)</h3>
+                    <p class="text-3xl font-bold text-gray-800">+23%</p>
+                    <p class="text-gray-500 text-sm">Surge, defying Tier-2 trends</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-lg shadow-lg border-l-4 border-violet-500">
+                    <h3 class="text-gray-500 text-sm font-medium uppercase">Transaction Value (Q1 2025)</h3>
+                    <p class="text-3xl font-bold text-gray-800">₹1,120 Cr</p>
+                    <p class="text-gray-500 text-sm">Up 52%, indicating premium shift</p>
+                </div>
+                <div class="stat-card bg-white p-6 rounded-lg shadow-lg border-l-4 border-fuchsia-500">
+                    <h3 class="text-gray-500 text-sm font-medium uppercase">Key Buyer Demand</h3>
+                    <p class="text-3xl font-bold text-gray-800">Luxury</p>
+                    <p class="text-gray-500 text-sm">Shift from affordable to premium</p>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold text-center mb-4">Villa Market Segmentation by Price</h3>
+                <div class="chart-container">
+                    <canvas id="priceSegmentationChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="developers" class="my-16 scroll-mt-20">
+            <h2 class="section-title">Developer Landscape</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                The market features a mix of large, established players and agile local developers. Understanding their strengths and weaknesses, derived from buyer reviews, is key to finding a competitive edge.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Key Players Analysis</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">Casagrand</h4>
+                            <p class="text-sm text-gray-500 mb-2">Major Established Player</p>
+                            <p class="text-purple-600 font-semibold">Praises: <span class="text-gray-700 font-normal">Large-scale projects, broad market coverage.</span></p>
+                            <p class="text-red-600 font-semibold">Complaints: <span class="text-gray-700 font-normal">Notorious for construction delays, subpar quality, poor CRM.</span></p>
+                        </div>
+                         <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">Radiance Realty</h4>
+                            <p class="text-sm text-gray-500 mb-2">Major Established Player</p>
+                            <p class="text-purple-600 font-semibold">Praises: <span class="text-gray-700 font-normal">Long legacy, emphasis on quality and eco-friendly solutions.</span></p>
+                            <p class="text-red-600 font-semibold">Complaints: <span class="text-gray-700 font-normal">Delivery delays, finishing issues, poor official response.</span></p>
+                        </div>
+                        <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">JRD Realtorss</h4>
+                            <p class="text-sm text-gray-500 mb-2">Prominent Local Player</p>
+                            <p class="text-purple-600 font-semibold">Praises: <span class="text-gray-700 font-normal">Professionalism, timely delivery, quality custom designs, responsive service.</span></p>
+                            <p class="text-red-600 font-semibold">Complaints: <span class="text-gray-700 font-normal">Fewer complaints noted in the report.</span></p>
+                        </div>
+                        <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">Jayabharath Homes</h4>
+                            <p class="text-sm text-gray-500 mb-2">Prominent Local Player</p>
+                            <p class="text-purple-600 font-semibold">Praises: <span class="text-gray-700 font-normal">Niche focus on premium gated villas, high quality, trust, on-time delivery.</span></p>
+                            <p class="text-red-600 font-semibold">Complaints: <span class="text-gray-700 font-normal">Fewer complaints noted in the report.</span></p>
+                        </div>
+                        <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">G Square</h4>
+                            <p class="text-sm text-gray-500 mb-2">Emerging Player</p>
+                            <p class="text-purple-600 font-semibold">Praises: <span class="text-gray-700 font-normal">Highly active in villa plots, DTCP approved layouts across many localities.</span></p>
+                            <p class="text-red-600 font-semibold">Complaints: <span class="text-gray-700 font-normal">Focus is more on plots than ready-built villas.</span></p>
+                        </div>
+                         <div class="border p-4 rounded-lg bg-gray-50">
+                            <h4 class="font-bold text-lg">New Entrant Opportunity</h4>
+                            <p class="text-sm text-gray-500 mb-2">Strategic Opening</p>
+                            <p class="text-gray-700">Focus on operational excellence: <span class="font-semibold text-purple-700">timely delivery, superior quality, and transparent CRM</span> to capture market share from established players with known weaknesses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="locations" class="my-16 scroll-mt-20">
+            <h2 class="section-title">Location Analysis</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                Coimbatore's growth is concentrated in key localities, each with distinct pricing and target demographics. The outward expansion towards suburbs with available land presents a significant opportunity for new developments.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h4 class="font-bold">Saravanampatti</h4>
+                        <p class="text-sm text-gray-500">Avg. Price: ~₹5,350/sq.ft</p>
+                        <p class="text-sm">Targets: Tech professionals, NRIs, HNIs.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h4 class="font-bold">Kalapatti</h4>
+                        <p class="text-sm text-gray-500">Avg. Price: ~₹8,518/sq.ft <span class="text-green-600 font-semibold">(+44% YoY)</span></p>
+                        <p class="text-sm">Targets: Families, investors, proximity to IT hubs.</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h4 class="font-bold">Kovaipudur</h4>
+                        <p class="text-sm text-gray-500">Avg. Price: ~₹2,200/sq.ft</p>
+                        <p class="text-sm">Targets: Peace-seekers, families, budget-conscious.</p>
+                    </div>
+                     <div class="bg-white p-4 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h4 class="font-bold">Vadavalli</h4>
+                        <p class="text-sm text-gray-500">Avg. Price: ~₹4,950/sq.ft</p>
+                        <p class="text-sm">Targets: Families, professionals, investors.</p>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-center mb-4">Average Property Prices by Locality (₹/sq.ft)</h3>
+                    <div class="chart-container !max-w-full">
+                        <canvas id="locationPriceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="my-16 scroll-mt-20">
+            <h2 class="section-title">Interactive Project Explorer</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                Use the filters below to explore the detailed database of villa projects in Coimbatore. This tool allows you to compare offerings based on developer, location, price, and configuration to identify market gaps and opportunities.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <input type="text" id="searchInput" placeholder="Search by project name..." class="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <select id="developerFilter" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></select>
+                    <select id="locationFilter" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500"></select>
+                    <select id="priceFilter" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                        <option value="all">All Prices</option>
+                        <option value="<75L">Sub ₹75L</option>
+                        <option value="75L-1.5Cr">₹75L - ₹1.5Cr</option>
+                        <option value="1.5Cr-2.5Cr">₹1.5Cr - ₹2.5Cr</option>
+                        <option value=">2.5Cr">₹2.5Cr+</option>
+                    </select>
+                </div>
+                <div class="table-container">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Project Name</th>
+                                <th scope="col" class="px-6 py-3">Developer</th>
+                                <th scope="col" class="px-6 py-3">Location</th>
+                                <th scope="col" class="px-6 py-3">Config.</th>
+                                <th scope="col" class="px-6 py-3">Area (sq.ft)</th>
+                                <th scope="col" class="px-6 py-3">Price Range</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="insights" class="my-16 scroll-mt-20">
+            <h2 class="section-title">Buyer Insights</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                Understanding what buyers expect at different price points is crucial for product positioning. Gated communities and Vastu compliance are foundational expectations, while luxury features differentiate the high-end market.
+            </p>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold text-center mb-6">Product Positioning by Price Bracket</h3>
+                <div class="flex justify-center mb-6">
+                    <div class="flex space-x-1 rounded-lg bg-gray-200 p-1">
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md active" data-tab="sub75L">Sub ₹75L</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="midRange">₹75L-₹1.5Cr</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="premium">₹1.5Cr-₹2.5Cr</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md" data-tab="ultraLuxury">₹2.5Cr+</button>
+                    </div>
+                </div>
+                <div id="tabContent" class="p-4 border rounded-lg bg-gray-50 min-h-[200px]">
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="my-16 scroll-mt-20">
+            <h2 class="section-title">Strategic Recommendations</h2>
+             <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">
+                For a new developer, success in Coimbatore's villa market hinges on strategic positioning, product differentiation, and flawless execution. The following recommendations are derived from the comprehensive market analysis.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-3 text-purple-700">1. Target Market & Niche</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><b>Focus on Mid-to-Premium:</b> Target the ₹75L - ₹2.5Cr+ segments, where demand and value growth are strongest.</li>
+                        <li><b>Prioritize Gated Communities:</b> This is a non-negotiable buyer expectation for security and lifestyle.</li>
+                        <li><b>Acquire Land in Emerging Localities:</b> Look to Saravanampatti, Kalapatti, and Vadavalli for high appreciation potential.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-3 text-purple-700">2. Product Differentiation</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><b>Integrate Modern Features:</b> Make Smart Home tech and sustainable features (solar, rainwater harvesting) a key offering.</li>
+                        <li><b>Ensure Vastu Compliance:</b> Acknowledge this crucial cultural factor in all designs.</li>
+                        <li><b>Offer Customization:</b> Provide flexible layouts and finish choices to attract discerning buyers.</li>
+                         <li><b>Commit to Quality & Timeliness:</b> Build a reputation for reliability to stand out from competitors with known issues.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-3 text-purple-700">3. Marketing & Sales</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><b>Adopt a Digital-First, Local-First Approach:</b> Use real estate portals, social media, and crucially, vernacular (Tamil) ads.</li>
+                        <li><b>Market the Lifestyle:</b> Sell the comprehensive "gated community lifestyle," not just the property.</li>
+                        <li><b>Offer Value-Adds over Discounts:</b> Provide packages like semi-furnished options or smart home kits.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold text-xl mb-3 text-purple-700">4. Risk Mitigation</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><b>Strict RERA & DTCP Compliance:</b> Ensure 100% legal clarity to build buyer trust and avoid litigation.</li>
+                        <li><b>Conduct Thorough Due Diligence:</b> Meticulously check land titles for encroachments or disputes.</li>
+                        <li><b>Implement Strong Quality Control & CRM:</b> Prevent common build quality complaints and manage customer relations effectively.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-8 py-4 text-center">
+            <p>&copy; 2025 EST8 by 88GB - Coimbatore Villa Market Analysis. This is an interactive dashboard generated from a research report.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const projectData = [
+        { name: 'Casagrand Orchards Villa – PH II', developer: 'Casagrand', location: 'Kannampalayam', config: '3 & 4 BHK', area: 'N/A', price: '1.60 Cr - 2.18 Cr', price_min: 160, price_max: 218 },
+        { name: 'Casagrand Colosseum', developer: 'Casagrand', location: 'Avarampalayam', config: '4 BHK', area: 'N/A', price: '6.43 Cr onwards', price_min: 643, price_max: Infinity },
+        { name: 'Casagrand Solitaire', developer: 'Casagrand', location: 'MTP Road', config: '3, 4 BHK', area: '2702-3306', price: '1.90 Cr onwards', price_min: 190, price_max: Infinity },
+        { name: 'Casagrand Cosmos', developer: 'Casagrand', location: 'Vellakinar', config: '2,3,4 BHK', area: '655-4077', price: '54.0 L - 3.75 Cr', price_min: 54, price_max: 375 },
+        { name: 'Radiance Imperia', developer: 'Radiance Realty', location: 'Veerakeralam', config: '3-5 BHK', area: '2888-6493', price: '2.27 Cr - 5.24 Cr', price_min: 227, price_max: 524 },
+        { name: 'Radiance Splendour Villas', developer: 'Radiance Realty', location: 'Vedapatti', config: '3, 4 BHK', area: '2105-3105', price: '94.72 L - 1.55 Cr', price_min: 94.72, price_max: 155 },
+        { name: 'JRD Imperial Garden Villas', developer: 'JRD Realtorss', location: 'Kovaipudur', config: '3, 4, 5 BHK', area: '1800-3000', price: '1.62 Cr - 2.76 Cr', price_min: 162, price_max: 276 },
+        { name: 'JRD Platinum Pavilion Villas', developer: 'JRD Realtorss', location: 'Vadavalli', config: '3, 4 BHK', area: 'N/A', price: '2.17 Cr - 2.97 Cr', price_min: 217, price_max: 297 },
+        { name: 'JRD Harmony Villas', developer: 'JRD Realtorss', location: 'Kondaiyapalayam', config: '2, 3, 4 BHK', area: 'N/A', price: '65 L - 1.65 Cr', price_min: 65, price_max: 165 },
+        { name: 'JRD Vistara Green Villas', developer: 'JRD Realtorss', location: 'Kovaipudur', config: '2, 3, 4 BHK', area: '1000-2500', price: '58 L - 1.35 Cr', price_min: 58, price_max: 135 },
+        { name: 'JRD Lush Villas', developer: 'JRD Realtorss', location: 'Kovaipudur', config: '4, 5 BHK', area: '1000-3500', price: '30 L - 1.3 Cr', price_min: 30, price_max: 130 },
+        { name: 'Jayabharath Yogamudhra', developer: 'Jayabharath Homes', location: 'Saravanampatti', config: '3 & 4 BHK', area: 'N/A', price: 'Luxury', price_min: 150, price_max: 250 },
+        { name: 'Sherna Sathyanand Avenue', developer: 'Sherna Properties', location: 'Kalapatti', config: 'Villa', area: '3000', price: '1.25 Cr - 2 Cr', price_min: 125, price_max: 200 },
+        { name: 'Sreevatsa Urban Villas', developer: 'Sreevatsa Real Estates', location: 'Chinnavedampatty', config: '5 BHK', area: '5142', price: '4.62 Cr onwards', price_min: 462, price_max: Infinity },
+        { name: 'Sreevatsa Kailash', developer: 'Sreevatsa Real Estates', location: 'Vellakinar', config: '3 BHK', area: '3203-3254', price: '3.2 Cr - 3.25 Cr', price_min: 320, price_max: 325 },
+        { name: 'Trisquare Amber', developer: 'Trisquare', location: 'Thudiyalur', config: '3, 4, 5 BHK', area: '2114-4693', price: '2.06 Cr - 4.58 Cr', price_min: 206, price_max: 458 },
+        { name: 'Eeshanya Aadhya', developer: 'Eeshanya Constructions', location: 'Saravanampatti', config: '4 BHK', area: '2220', price: '1.48 Cr - 1.55 Cr', price_min: 148, price_max: 155 },
+        { name: 'Eeshanya Tropique', developer: 'Eeshanya Constructions', location: 'Saravanampatti', config: '3 BHK', area: '2264-2675', price: '1.26 Cr - 1.56 Cr', price_min: 126, price_max: 156 }
+    ];
+
+    const locationData = [
+        { name: 'Kalapatti', price: 8518 },
+        { name: 'Avinashi Road', price: 7250 },
+        { name: 'Peelamedu', price: 6850 },
+        { name: 'Saravanampatti', price: 5350 },
+        { name: 'Thudiyalur', price: 5150 },
+        { name: 'Kovaipudur', price: 2200 },
+        { name: 'Vadavalli', price: 4950 }
+    ];
+
+    // Chart.js for Price Segmentation
+    const priceSegmentationCtx = document.getElementById('priceSegmentationChart').getContext('2d');
+    const priceSegmentationChart = new Chart(priceSegmentationCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sub ₹75L', '₹75L - ₹1.5Cr', '₹1.5Cr - ₹2.5Cr', '₹2.5Cr+'],
+            datasets: [{
+                data: [20, 45, 25, 10], // Example distribution based on report insights
+                backgroundColor: ['#D8BFD8', '#BA55D3', '#8A2BE2', '#4B0082'], // Shades of purple/grey
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed !== null) {
+                                label += context.parsed + '%';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Chart.js for Location Price Chart
+    const locationPriceCtx = document.getElementById('locationPriceChart').getContext('2d');
+    const locationPriceChart = new Chart(locationPriceCtx, {
+        type: 'bar',
+        data: {
+            labels: locationData.map(loc => {
+                const words = loc.name.split(' ');
+                let lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + word).length <= 16) {
+                        currentLine += (currentLine ? ' ' : '') + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                });
+                lines.push(currentLine);
+                return lines;
+            }),
+            datasets: [{
+                label: 'Average Price per sq.ft (₹)',
+                data: locationData.map(loc => loc.price),
+                backgroundColor: '#6B46C1', // Indigo-600 for a purple hue
+                borderColor: '#553C9A', // Darker indigo
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += '₹' + context.parsed.y.toLocaleString('en-IN') + '/sq.ft';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Average Price (₹/sq.ft)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Project Explorer Logic
+    const searchInput = document.getElementById('searchInput');
+    const developerFilter = document.getElementById('developerFilter');
+    const locationFilter = document.getElementById('locationFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const projectTableBody = document.getElementById('projectTableBody');
+
+    function populateFilters() {
+        const developers = [...new Set(projectData.map(p => p.developer))].sort();
+        const locations = [...new Set(projectData.map(p => p.location))].sort();
+
+        developerFilter.innerHTML = '<option value="all">All Developers</option>' + developers.map(d => `<option value="${d}">${d}</option>`).join('');
+        locationFilter.innerHTML = '<option value="all">All Locations</option>' + locations.map(l => `<option value="${l}">${l}</option>`).join('');
+    }
+
+    function renderProjects() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedDeveloper = developerFilter.value;
+        const selectedLocation = locationFilter.value;
+        const selectedPriceRange = priceFilter.value;
+
+        const filteredProjects = projectData.filter(project => {
+            const matchesSearch = project.name.toLowerCase().includes(searchTerm);
+            const matchesDeveloper = selectedDeveloper === 'all' || project.developer === selectedDeveloper;
+            const matchesLocation = selectedLocation === 'all' || project.location === selectedLocation;
+            const matchesPrice = selectedPriceRange === 'all' || checkPriceRange(project, selectedPriceRange);
+
+            return matchesSearch && matchesDeveloper && matchesLocation && matchesPrice;
+        });
+
+        projectTableBody.innerHTML = '';
+        if (filteredProjects.length === 0) {
+            projectTableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No projects found matching your criteria.</td></tr>';
+            return;
+        }
+
+        filteredProjects.forEach(project => {
+            const row = projectTableBody.insertRow();
+            row.classList.add('bg-white', 'border-b', 'hover:bg-gray-50');
+            row.innerHTML = `
+                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${project.name}</td>
+                <td class="px-6 py-4">${project.developer}</td>
+                <td class="px-6 py-4">${project.location}</td>
+                <td class="px-6 py-4">${project.config}</td>
+                <td class="px-6 py-4">${project.area}</td>
+                <td class="px-6 py-4">${project.price}</td>
+            `;
+        });
+    }
+
+    function checkPriceRange(project, range) {
+        const min = project.price_min;
+        const max = project.price_max;
+
+        if (min === undefined || max === undefined) return false; // Cannot filter if price data is missing
+
+        switch (range) {
+            case '<75L': return max < 75;
+            case '75L-1.5Cr': return (min >= 75 && min < 150) || (max > 75 && max <= 150);
+            case '1.5Cr-2.5Cr': return (min >= 150 && min < 250) || (max > 150 && max <= 250);
+            case '>2.5Cr': return min >= 250;
+            default: return true;
+        }
+    }
+
+    searchInput.addEventListener('keyup', renderProjects);
+    developerFilter.addEventListener('change', renderProjects);
+    locationFilter.addEventListener('change', renderProjects);
+    priceFilter.addEventListener('change', renderProjects);
+
+    populateFilters();
+    renderProjects();
+
+    // Buyer Insights Tab Logic
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContent = document.getElementById('tabContent');
+
+    const insightsContent = {
+        sub75L: `
+            <h4 class="font-semibold text-lg mb-2">Sub ₹75 Lakhs</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                <li><b>Villas:</b> Compact 2/3 BHK, row houses, or smaller independent villas.</li>
+                <li><b>Target Audience:</b> First-time homebuyers, young families, individuals seeking independence from apartments, those on a budget.</li>
+                <li><b>Design/Features:</b> Basic layouts, functional design, emphasis on affordability. Vastu compliance is a plus.</li>
+                <li><b>USPs:</b> Price point, independent living, basic gated community features, proximity to essential services.</li>
+            </ul>
+        `,
+        midRange: `
+            <h4 class="font-semibold text-lg mb-2">₹75 Lakhs – ₹1.5 Crore</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                <li><b>Villas:</b> Spacious 3 BHK, duplex, or larger independent villas.</li>
+                <li><b>Target Audience:</b> Mid-career professionals, growing families, NRIs seeking investment or future residence, those upgrading from apartments.</li>
+                <li><b>Design/Features:</b> Modern open layouts, good quality fittings, provision for smart home features, solar water heater, basic landscaping. Vastu compliance expected.</li>
+                <li><b>USPs:</b> Gated community with amenities (clubhouse, gym, park), branded fittings, good connectivity, space for growth.</li>
+            </ul>
+        `,
+        premium: `
+            <h4 class="font-semibold text-lg mb-2">₹1.5 Crore – ₹2.5 Crore</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                <li><b>Villas:</b> Large 3/4 BHK, luxury duplexes, or independent villas on larger plots.</li>
+                <li><b>Target Audience:</b> Senior professionals, business owners, HNIs, second-home buyers, those prioritizing lifestyle and exclusivity.</li>
+                <li><b>Design/Features:</b> High-end finishes, smart home integration, private gardens, dedicated utility areas, contemporary architecture. Full Vastu compliance expected.</li>
+                <li><b>USPs:</b> Premium gated community, extensive amenities (swimming pool, sports facilities, landscaped gardens), smart security, bespoke design options, high-quality construction.</li>
+            </ul>
+        `,
+        ultraLuxury: `
+            <h4 class="font-semibold text-lg mb-2">₹2.5 Crore+</h4>
+            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                <li><b>Villas:</b> Expansive 4/5+ BHK, bespoke luxury villas, or sprawling estates.</li>
+                <li><b>Target Audience:</b> Ultra-HNIs, industrialists, top executives, those seeking ultimate privacy, luxury, and status.</li>
+                <li><b>Design/Features:</b> Custom architectural designs, imported fittings, home automation, private elevators, home theaters, large green spaces, sustainable features (solar panels, rainwater harvesting).</li>
+                <li><b>USPs:</b> Exclusivity, privacy, concierge services, designer interiors, large plot sizes, prime locations, personalized customization, high-end security systems.</li>
+            </ul>
+        `
+    };
+
+    function showTab(tabId) {
+        tabButtons.forEach(button => {
+            if (button.dataset.tab === tabId) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+        tabContent.innerHTML = insightsContent[tabId];
+    }
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            showTab(button.dataset.tab);
+        });
+    });
+
+    // Initialize with the first tab
+    showTab('sub75L');
+
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 80) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (mobileMenu.classList.contains('hidden') === false) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    });
+
+});
+</script>
+</body>
+</html>

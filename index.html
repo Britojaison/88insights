@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>88Insights: Premium Market Research Proposition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Black, White, & Purple -->
+    <!-- Application Structure Plan: The SPA is structured as a premium, non-linear brand proposition. It starts with a hero section that immediately establishes a high-end feel. Subsequent sections detail core services and unique differentiators, leveraging a clean, modular layout. The interactive case studies and ROI chart serve as compelling proof points, allowing users to explore evidence at their own pace. This structure prioritizes a user-driven discovery of value, moving from brand promise to quantified results in a sleek, professional flow. -->
+    <!-- Visualization & Content Choices: Report Info: Case study outcomes -> Goal: Compare ROI -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Filter by region (India/GCC) to update chart data -> Justification: The bar chart visually represents quantitative impact, while the filtering adds an interactive layer for targeted data exploration, enhancing credibility. | Report Info: Case Study Details -> Goal: Inform -> Viz: Tabbed content display -> Interaction: User clicks tabs to switch content -> Justification: This method organizes a large volume of detailed information cleanly, preventing an overwhelming visual experience and empowering users to focus on the case study most relevant to them. | Report Info: Brand differentiators -> Goal: Persuade -> Viz: Minimalist, icon-driven text blocks -> Interaction: Simple hover effects -> Justification: This presentation makes key value propositions scannable and visually appealing, using space and simple typography to convey a sense of elegance and professionalism, reinforcing the brand's premium identity. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #E5E5E5;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        .active-tab {
+            border-bottom-color: #7D53FF;
+            color: #7D53FF;
+            font-weight: 600;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#0A0A0A]/80 backdrop-blur-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-[#7D53FF]">88Insights</h1>
+            <ul class="flex space-x-4 sm:space-x-6 text-sm sm:text-base">
+                <li><a href="#services" class="text-gray-400 hover:text-[#7D53FF] transition">Services</a></li>
+                <li><a href="#why-us" class="text-gray-400 hover:text-[#7D53FF] transition">Why Us</a></li>
+                <li><a href="#case-studies" class="text-gray-400 hover:text-[#7D53FF] transition">Case Studies</a></li>
+                <li><a href="#roi" class="text-gray-400 hover:text-[#7D53FF] transition">ROI</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="hero" class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Turn Conversations Into Clarity</h2>
+            <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8">88Insights is the market research division of 88GB. We combine fieldwork, consumer behavior mapping, and digital-first testing to decode what your audience really wants—so your brand decisions are sharper, faster, and grounded in reality.</p>
+            <a href="#" class="inline-block bg-[#7D53FF] text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:bg-white hover:text-[#7D53FF] transition-transform transform hover:-translate-y-1">
+                👉 Book a Research Consult
+            </a>
+        </section>
+
+        <section id="services" class="mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white">What We Do</h3>
+                <p class="mt-2 text-gray-400 max-w-4xl mx-auto">We provide the actionable insights you need to win in complex markets.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="bg-[#1A1A1A] p-6 rounded-lg shadow-lg border border-gray-800">
+                    <div class="text-4xl mb-3">🗣️</div>
+                    <h4 class="font-semibold text-lg text-white mb-2">Consumer Understanding</h4>
+                    <p class="text-gray-400 text-sm">Step into your customer’s world. From in-habitat conversations to behavior mapping, we reveal why people choose, switch, or stay loyal.</p>
+                </div>
+                <div class="bg-[#1A1A1A] p-6 rounded-lg shadow-lg border border-gray-800">
+                     <div class="text-4xl mb-3">🔍</div>
+                    <h4 class="font-semibold text-lg text-white mb-2">Brand & Product Decisions</h4>
+                    <p class="text-gray-400 text-sm">Validate your next move. Packaging tests, positioning studies, and communication checks that give you answers before you go live.</p>
+                </div>
+                <div class="bg-[#1A1A1A] p-6 rounded-lg shadow-lg border border-gray-800">
+                     <div class="text-4xl mb-3">🚀</div>
+                    <h4 class="font-semibold text-lg text-white mb-2">Agility & Scale</h4>
+                    <p class="text-gray-400 text-sm">Move at the speed of business. Group opinion panels and quick-turn digital research designed for brands that can’t afford to wait months.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="why-us" class="mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white">Why 88Insights</h3>
+                <p class="mt-2 text-gray-400 max-w-4xl mx-auto">Our unique model ensures insights are not just reports, but catalysts for growth.</p>
+            </div>
+            <div class="bg-[#1A1A1A] p-8 rounded-lg shadow-lg border border-gray-800">
+                <div class="grid md:grid-cols-2 gap-8 text-left">
+                    <div class="flex items-start">
+                        <div class="text-xl text-[#7D53FF] mr-4 mt-1">✔</div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-white">Integrated with Execution</h4>
+                            <p class="text-gray-400 text-sm">As part of 88GB, insights don’t just sit in a report—they fuel campaigns, content, and GTM strategies.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="text-xl text-[#7D53FF] mr-4 mt-1">✔</div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-white">Ground + Digital Mix</h4>
+                            <p class="text-gray-400 text-sm">From mill visits in Tirunelveli to packaging split-tests on Instagram, we blend traditional research depth with digital agility.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="text-xl text-[#7D53FF] mr-4 mt-1">✔</div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-white">Agile & Boutique</h4>
+                            <p class="text-gray-400 text-sm">Faster turnaround than global research giants, but more structured than unorganized local shops.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="text-xl text-[#7D53FF] mr-4 mt-1">✔</div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-white">India Context First</h4>
+                            <p class="text-gray-400 text-sm">We understand regional nuance and multilingual markets better than anyone—because we live it every day.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="case-studies" class="mb-20">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-white">Proof Points in Action</h3>
+                <p class="mt-2 text-gray-400 max-w-4xl mx-auto">Explore how our methodologies delivered tangible, measurable results for brands just like yours.</p>
+            </div>
+
+            <div class="bg-[#1A1A1A] rounded-lg shadow-lg p-4 sm:p-8 border border-gray-800">
+                <div class="flex flex-wrap border-b border-gray-800 -mx-4 sm:-mx-8 px-4 sm:px-8">
+                    <button class="tab-btn text-sm sm:text-base py-4 px-2 sm:px-6 border-b-2 border-transparent active-tab" data-tab="product">New Product Launch</button>
+                    <button class="tab-btn text-sm sm:text-base py-4 px-2 sm:px-6 border-b-2 border-transparent" data-tab="retail">Retail Experience</button>
+                    <button class="tab-btn text-sm sm:text-base py-4 px-2 sm:px-6 border-b-2 border-transparent" data-tab="rebranding">Rebranding Strategy</button>
+                </div>
+                <div id="tab-content" class="pt-8 text-gray-400">
+                </div>
+            </div>
+        </section>
+        
+        <section id="roi" class="mb-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-white">A Clear Return on Investment</h3>
+                <p class="mt-2 text-gray-400">Our research translates directly into measurable business outcomes.</p>
+                <div id="chart-controls" class="mt-6 flex justify-center space-x-2">
+                    <button class="bg-[#7D53FF] text-white px-4 py-2 rounded-md shadow hover:bg-white hover:text-[#7D53FF] transition chart-filter active" data-region="all">All</button>
+                    <button class="bg-gray-800 text-gray-400 px-4 py-2 rounded-md shadow hover:bg-white hover:text-[#7D53FF] transition chart-filter" data-region="India">India</button>
+                    <button class="bg-gray-800 text-gray-400 px-4 py-2 rounded-md shadow hover:bg-white hover:text-[#7D53FF] transition chart-filter" data-region="GCC">GCC</button>
+                </div>
+            </div>
+            <div class="chart-container bg-[#1A1A1A] p-4 rounded-lg shadow-lg border border-gray-800">
+                <canvas id="roiChart"></canvas>
+            </div>
+        </section>
+
+        <section id="gcc" class="bg-[#1A1A1A] p-8 rounded-lg shadow-lg border border-gray-800">
+             <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-white">The GCC Advantage: Centralized Intelligence</h3>
+                <p class="mt-2 text-gray-400 max-w-4xl mx-auto">Global Capability Centers (GCCs) in India are evolving beyond cost centers into strategic hubs for market intelligence and analytics. This section illustrates how leading brands leverage these centers to synthesize primary research and inform global strategy, creating a powerful feedback loop for innovation and growth.</p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="text-center">
+                     <div class="text-4xl mb-3">🇮🇳</div>
+                    <h4 class="font-semibold text-xl text-white">India GCC Hub</h4>
+                    <p class="text-gray-400">Analytics & Research Engine</p>
+                </div>
+                <div class="text-5xl text-[#7D53FF] hidden md:block">→</div>
+                 <div class="text-5xl text-[#7D53FF] md:hidden">↓</div>
+                <div class="text-center">
+                    <div class="text-4xl mb-3">📈</div>
+                    <h4 class="font-semibold text-xl text-white">Actionable Insights</h4>
+                    <p class="text-gray-400">Data Synthesis & Reporting</p>
+                </div>
+                <div class="text-5xl text-[#7D53FF] hidden md:block">→</div>
+                <div class="text-5xl text-[#7D53FF] md:hidden">↓</div>
+                <div class="text-center">
+                     <div class="text-4xl mb-3">🌏</div>
+                    <h4 class="font-semibold text-xl text-white">Global Strategy</h4>
+                    <p class="text-gray-400">Informs Regional & Global Decisions</p>
+                </div>
+            </div>
+            <p class="text-center mt-8 text-gray-400 max-w-3xl mx-auto">By centralizing primary research analysis, brands ensure consistency, speed, and depth of insights, allowing them to react faster to market changes and proactively identify new opportunities across diverse geographies like the GCC and beyond.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-[#1A1A1A] text-gray-400 mt-20">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>&copy; 2025 88Insights. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabsData = {
+                product: {
+                    title: "Case Study: Successful Snack Launch in India",
+                    problem: "A global CPG giant aimed to launch a new line of savory snacks in the highly competitive Indian market, but was unsure about flavor profiles that would resonate with regional tastes.",
+                    solution: "We conducted a multi-phase study involving concept testing with 12 flavor variants, followed by in-home product trials and post-trial focus groups in Tier-1 and Tier-2 cities.",
+                    outcome: "Research identified a strong preference for a 'Spicy Tamarind' flavor, which was not on the initial roadmap. The localized variant launched with a targeted campaign and captured a 5% market share within six months, significantly exceeding projections.",
+                    methods: ["Concept Testing", "In-Home Trials", "Focus Groups"],
+                    metrics: {
+                        "Risk of Product Failure Reduced": 40,
+                        "Market Share Gain (6 Months)": 5,
+                        "Positive Consumer Sentiment": 85
+                    }
+                },
+                retail: {
+                    title: "Case Study: Shelf Optimization in a GCC Hypermarket",
+                    problem: "A leading hypermarket chain in the UAE noticed declining sales in its premium confectionery aisle despite high foot traffic.",
+                    solution: "Using discreet eye-tracking glasses on a sample of shoppers and in-store observational studies, we analyzed shopper journeys, dwell time, and points of visual engagement. The data revealed that high-margin products were placed below eye-level and promotional signage was cluttered.",
+                    outcome: "A redesigned planogram placed premium items at eye-level and streamlined promotional signage. This led to a 15% increase in impulse buys for the category and a 25% uplift in sales for the targeted premium products.",
+                    methods: ["Eye-Tracking", "In-Store Observation", "Planogram Analysis"],
+                    metrics: {
+                        "Increase in Impulse Buys": 15,
+                        "Sales Uplift (Premium SKUs)": 25,
+                        "Improved Brand Visibility": 30
+                    }
+                },
+                rebranding: {
+                    title: "Case Study: Rebranding a Legacy Brand in the GCC",
+                    problem: "An established dairy brand in the GCC was losing relevance with younger consumers, who perceived it as 'traditional' and outdated. Sales were stagnant despite a strong distribution network.",
+                    solution: "Comprehensive consumer surveys and sentiment analysis on social media identified a clear disconnect. We then facilitated focus groups with millennials to co-create a new brand identity, including modern packaging and a digital-first marketing campaign focused on health and wellness.",
+                    outcome: "The brand refresh led to a 12% increase in market share among the under-30 demographic within a year. Brand equity scores for 'modern' and 'healthy' improved by over 50%.",
+                    methods: ["Consumer Surveys", "Sentiment Analysis", "Focus Groups"],
+                    metrics: {
+                        "Market Share Growth (U30)": 12,
+                        "Brand Equity Score Lift": 50,
+                        "Optimized Marketing Spend": 18
+                    }
+                }
+            };
+
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContent = document.getElementById('tab-content');
+
+            function updateTabContent(tabKey) {
+                const data = tabsData[tabKey];
+                let methodsHtml = data.methods.map(method => `<span class="bg-gray-800 text-gray-400 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full">${method}</span>`).join('');
+                let metricsHtml = Object.entries(data.metrics).map(([key, value]) => `
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-[#7D53FF]">${value}%</p>
+                        <p class="text-sm text-gray-400">${key}</p>
+                    </div>
+                `).join('');
+
+                tabContent.innerHTML = `
+                    <div class="fade-in">
+                        <h4 class="text-2xl font-bold text-white mb-4">${data.title}</h4>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h5 class="font-semibold text-lg text-white mb-2">The Problem</h5>
+                                <p class="text-gray-400 mb-4">${data.problem}</p>
+                                <h5 class="font-semibold text-lg text-white mb-2">The Research-Driven Solution</h5>
+                                <p class="text-gray-400">${data.solution}</p>
+                            </div>
+                            <div>
+                                <div class="bg-gray-900 p-6 rounded-lg border border-gray-800">
+                                    <h5 class="font-semibold text-lg text-white mb-3">The Outcome</h5>
+                                    <p class="text-gray-400 mb-6">${data.outcome}</p>
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                                        ${metricsHtml}
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="font-semibold text-white mb-2">Methodologies Used:</h6>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            ${methodsHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active-tab'));
+                    button.classList.add('active-tab');
+                    updateTabContent(button.dataset.tab);
+                });
+            });
+
+            updateTabContent('product');
+            
+            const tooltipContexts = {
+                all: [
+                    "Result of redesigned planogram and signage based on eye-tracking data.",
+                    "A new localized flavor variant captured a 5% market share in 6 months.",
+                    "Driven by placing premium items at eye-level based on eye-tracking data.",
+                    "Improved brand perception for 'modern' and 'healthy' among millennials.",
+                    "Reduced risk of product failure through robust concept testing.",
+                    "Optimized marketing spend via a digital-first campaign co-created with consumers."
+                ],
+                India: [
+                    "A new localized flavor variant captured a 5% market share in 6 months.",
+                    "Reduced risk of product failure through robust concept testing.",
+                    "Achieved via in-home trials and focus groups for new products."
+                ],
+                GCC: [
+                    "Result of redesigned planogram and signage based on eye-tracking data.",
+                    "Driven by placing premium items at eye-level based on eye-tracking data.",
+                    "Achieved market share growth with a new brand identity for younger consumers.",
+                    "Improved brand perception for 'modern' and 'healthy' among millennials."
+                ]
+            };
+
+            const roiData = {
+                all: {
+                    labels: ['Sales Uplift', 'Market Share Gain', 'Impulse Buys ↑', 'Brand Equity ↑', 'Risk Reduction', 'Mktg. Spend Opt.'],
+                    datasets: [{
+                        label: 'Business Impact',
+                        data: [25, 12, 15, 50, 40, 18],
+                        backgroundColor: '#7D53FF',
+                        borderColor: '#9B74FF',
+                        borderWidth: 1,
+                        context: tooltipContexts.all
+                    }]
+                },
+                India: {
+                    labels: ['Market Share Gain', 'Risk Reduction', 'Consumer Sentiment'],
+                    datasets: [{
+                        label: 'Business Impact (India)',
+                        data: [5, 40, 85],
+                        backgroundColor: '#7D53FF',
+                        borderColor: '#9B74FF',
+                        borderWidth: 1,
+                        context: tooltipContexts.India
+                    }]
+                },
+                GCC: {
+                    labels: ['Sales Uplift', 'Impulse Buys ↑', 'Market Share (U30)', 'Brand Equity ↑'],
+                    datasets: [{
+                        label: 'Business Impact (GCC)',
+                        data: [25, 15, 12, 50],
+                        backgroundColor: '#7D53FF',
+                        borderColor: '#9B74FF',
+                        borderWidth: 1,
+                        context: tooltipContexts.GCC
+                    }]
+                }
+            };
+            
+            const ctx = document.getElementById('roiChart').getContext('2d');
+            const roiChart = new Chart(ctx, {
+                type: 'bar',
+                data: roiData.all,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Quantified Business Outcomes from Primary Research (%)',
+                            color: '#E5E5E5'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label;
+                                    const value = context.raw;
+                                    const contextText = context.dataset.context[context.dataIndex];
+                                    return [`${label}: ${value}%`, `Context: ${contextText}`];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Percentage Improvement / Gain',
+                                color: '#E5E5E5'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#E5E5E5'
+                            }
+                        },
+                         y: {
+                            ticks: {
+                                autoSkip: false,
+                                callback: function(value, index, values) {
+                                    const label = this.getLabelForValue(value);
+                                    if (label.length > 16) {
+                                        return label.slice(0, 16) + '...';
+                                    }
+                                    return label;
+                                },
+                                color: '#E5E5E5'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const chartFilters = document.querySelectorAll('.chart-filter');
+            chartFilters.forEach(button => {
+                button.addEventListener('click', () => {
+                    chartFilters.forEach(btn => {
+                        btn.classList.remove('active', 'bg-[#7D53FF]', 'text-white');
+                        btn.classList.add('bg-gray-800', 'text-gray-400');
+                    });
+                    button.classList.add('active', 'bg-[#7D53FF]', 'text-white');
+                    button.classList.remove('bg-gray-800', 'text-gray-400');
+                    const region = button.dataset.region;
+                    roiChart.data = roiData[region];
+                    roiChart.update();
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

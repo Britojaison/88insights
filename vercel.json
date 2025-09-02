@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "src": "/coimbatore-villa-market",
+      "dest": "/pages/coimbatore-villa-market.html"
+    },
+    {
+      "src": "/dubai-market-analysis", 
+      "dest": "/pages/dubai-market-analysis.html"
+    },
+    {
+      "src": "/hummus",
+      "dest": "/pages/hummus.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
