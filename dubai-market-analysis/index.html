@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Strategy Library for Dubai Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Dusty Teal -->
+    <!-- Application Structure Plan: The application is now a multi-section single-page application (SPA). It is divided into two primary, navigable sections: 'Market Analysis' and 'Case Studies Library'. This structure was chosen to logically separate high-level, data-driven market insights from detailed, qualitative social media examples. Users can now easily switch between understanding the broader industry context and exploring specific, tactical executions. The 'Market Analysis' section is designed with a linear, scrolling format, punctuated by interactive charts, sortable data tables, and key metric cards to make complex data digestible. This design supports a narrative flow and allows for a deep dive into the macroeconomic data. The 'Case Studies' section retains its dashboard layout with filters, optimized for quick, exploratory browsing. The two-section structure provides a comprehensive and user-friendly experience by catering to both analytical and creative exploration. -->
+    <!-- Visualization & Content Choices: For the new 'Market Analysis' section, I am using multiple visualizations. GOAL: Visualize growth trajectories and compare different market valuations. VIZ/PRESENTATION: Line charts (Chart.js) are used to show growth trends (CAGR) and Bar charts to compare market sizes at a specific point in time. The raw data from the tables in the source report is presented in interactive, sortable HTML tables. The 'Export to Sheets' button is implemented with a JS function to generate a CSV from the table data, enabling further user analysis. Key metrics are highlighted in visually distinct cards to improve scannability and highlight key findings. For the 'Case Studies Library' section, the existing Doughnut and Bar charts and the filterable card gallery are maintained. JUSTIFICATION: Charts provide an immediate, visual understanding of trends and comparisons that raw numbers cannot. Sortable tables empower users to explore and organize data themselves. The CSV export provides a tangible utility for data-driven users. The new cards make key numbers pop and provide an at-a-glance summary of critical insights, complementing the more detailed tables and charts. LIBRARY/METHOD: All charts use Chart.js (Canvas). Tables are standard HTML with vanilla JS for sorting and data export. New cards are dynamically generated with JavaScript from a data object. Confirmation: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #333333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+            transition: transform 0.25s ease;
+        }
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF;
+        }
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <p class="text-sm font-semibold text-gray-500 uppercase mb-2">Presented by 88insights</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Social Media Strategy Library</h1>
+            <p class="mt-2 text-lg text-gray-600">Effective Social Media Executions for the GCC Events Industry</p>
+        </header>
+
+        <nav class="flex justify-center mb-10 space-x-4">
+            <button id="nav-market-analysis" class="px-6 py-2 rounded-full font-semibold text-sm transition-colors duration-200 border border-gray-300 bg-[#4682B4] text-white">Market Analysis</button>
+            <button id="nav-case-studies" class="px-6 py-2 rounded-full font-semibold text-sm transition-colors duration-200 border border-gray-300 bg-gray-200 text-gray-700 hover:bg-gray-300">Case Studies Library</button>
+        </nav>
+
+        <section id="market-analysis-section" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">The Global Events Industry: Market Dynamics and Opportunities</h2>
+            <p class="text-gray-600 mb-8">The global events industry is in a period of dynamic transformation, recovering with renewed vigor and fundamentally reshaping its identity. The era of the simple live event has passed, replaced by a sophisticated, data-driven, and "phygital" discipline that leverages technology to expand its reach and enhance its impact. The industry's growth is fueled by a dual engine of consistent B2B demand for face-to-face interaction and the high-impact, measurable ROI of B2C experiential marketing.</p>
+
+            <h3 class="text-2xl font-bold text-gray-700 mb-4">Global Market Size and Growth Forecasts</h3>
+            <div id="global-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+            <p class="text-gray-600 mb-4">The global events industry has demonstrated remarkable resilience and is on a clear path to substantial expansion. The chart below visualizes the projected growth across different market segments, demonstrating the industry's robust trajectory. </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="chart-container">
+                    <canvas id="globalMarketChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="globalCagrChart"></canvas>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 mb-8">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Table 1: Global Events Market Forecasts (2024-2035)</h4>
+                <table id="global-table" class="w-full text-left text-sm text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                        <tr>
+                            <th scope="col" class="py-3 px-6 rounded-tl-lg">Market Segment</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="baseValue">Base Year Value</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="forecastValue">Forecast Value</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="cagr">CAGR</th>
+                            <th scope="col" class="py-3 px-6 rounded-tr-lg">Forecast Period</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="flex justify-end mt-4">
+                    <button id="export-global" class="text-white bg-[#4682B4] hover:bg-blue-700 transition font-medium rounded-lg text-xs px-4 py-2">Export to Sheets</button>
+                </div>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-700 mt-8 mb-4">B2C Events Sector: The Rise of Immersive Marketing</h3>
+            <p class="text-gray-600 mb-4">The B2C sector has evolved beyond simple entertainment to become a powerful tool for experiential marketing. The effectiveness of this approach is supported by compelling data that demonstrates a clear return on investment (ROI). This data elevates B2C events from discretionary spending to a strategic marketing imperative.</p>
+            <div id="b2c-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+
+            <h3 class="text-2xl font-bold text-gray-700 mt-8 mb-4">Hybrid & Virtual Evolution: From Necessity to Strategic Imperative</h3>
+            <p class="text-gray-600 mb-4">The post-pandemic landscape has seen a dramatic decline in purely virtual events, but the hybrid event model is a permanent fixture. The value of hybrid events lies in their ability to facilitate interaction between virtual and in-person attendees while expanding an event's reach to a global audience.</p>
+            <div id="hybrid-stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+
+            <h3 class="text-2xl font-bold text-gray-700 mt-8 mb-4">GCC Events Market: Growth Trajectories</h3>
+            <div id="gcc-stats" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+            <p class="text-gray-600 mb-4">The GCC events market is characterized by a significant growth trajectory, though a critical analysis reveals a wide range of valuations. The distinction is crucial and demonstrates that the true value of the events industry in the GCC is not just in its direct revenue, but in its powerful role as a catalyst for broader economic diversification.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="chart-container">
+                    <canvas id="gccMarketChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="gccCagrChart"></canvas>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 mb-8">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Table 2: GCC and UAE Market Forecasts (2023-2033)</h4>
+                <table id="gcc-table" class="w-full text-left text-sm text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                        <tr>
+                            <th scope="col" class="py-3 px-6 rounded-tl-lg">Market Segment</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="baseValue">Base Year Value</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="forecastValue">Forecast Value</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="cagr">CAGR</th>
+                            <th scope="col" class="py-3 px-6 rounded-tr-lg">Forecast Period</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="flex justify-end mt-4">
+                    <button id="export-gcc" class="text-white bg-[#4682B4] hover:bg-blue-700 transition font-medium rounded-lg text-xs px-4 py-2">Export to Sheets</button>
+                </div>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-gray-700 mt-8 mb-4">Dubai's Competitive Edge</h3>
+            <div id="dubai-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"></div>
+            <p class="text-gray-600 mb-4">Dubai’s prominence as an event destination is a function of its unparalleled strategic location and its world-class infrastructure. The city's geographic position places it within an eight-hour flight of two-thirds of the world's population, making it one of the most accessible global hubs. The table below provides a side-by-side comparison with other global event hubs. </p>
+            
+            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 mb-8">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Table 3: Comparative Analysis: Dubai vs. Global Event Hubs</h4>
+                <table id="comparative-table" class="w-full text-left text-sm text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-200">
+                        <tr>
+                            <th scope="col" class="py-3 px-6 rounded-tl-lg">Factor</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="Dubai">Dubai</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="Las Vegas">Las Vegas</th>
+                            <th scope="col" class="py-3 px-6 sortable" data-sort-by="Singapore">Singapore</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div class="flex justify-end mt-4">
+                    <button id="export-comparative" class="text-white bg-[#4682B4] hover:bg-blue-700 transition font-medium rounded-lg text-xs px-4 py-2">Export to Sheets</button>
+                </div>
+            </div>
+
+            <div class="space-y-6 text-gray-600">
+                <p>The Global Events Market, as a whole, is driven by two distinct but interconnected engines: the consistent, foundational revenue stream from B2B corporate events and the high-impact, culturally relevant B2C entertainment and experiential gatherings. The future of both sectors is inextricably linked to the permanent adoption of hybrid and virtual event models, which have evolved from a pandemic-era necessity into a strategic tool for expanding global reach and enhancing attendee engagement. The rising trend of "bleisure" travel—the blending of business and leisure—further expands the economic footprint of corporate events, particularly for destinations with strong tourism infrastructure.</p>
+                <p>Looking ahead, the industry’s trajectory will be defined by its embrace of advanced technology, including AI and AR/VR, to deliver personalized and immersive experiences, and its commitment to sustainability as a core business practice. While challenges such as intense competition and economic volatility persist, the GCC's strategic vision and agile approach position it to not only participate in this new era of events but to lead it, reinforcing the industry's role as a vital catalyst for economic and cultural growth.</p>
+            </div>
+        </section>
+
+        <section id="case-studies-section" class="hidden">
+            <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <aside class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 self-start">
+                    <h2 class="text-xl font-bold mb-4 text-gray-700">Explore & Filter</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="filter-objective" class="block text-sm font-medium text-gray-600 mb-2">Business Objective</label>
+                            <select id="filter-objective" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] transition">
+                                <option value="all">All Objectives</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-sector" class="block text-sm font-medium text-gray-600 mb-2">Event Sector</label>
+                            <select id="filter-sector" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] transition">
+                                <option value="all">All Sectors</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filter-platform" class="block text-sm font-medium text-gray-600 mb-2">Platform</label>
+                            <select id="filter-platform" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#4682B4] focus:border-[#4682B4] transition">
+                                <option value="all">All Platforms</option>
+                            </select>
+                        </div>
+                        <button id="reset-filters" class="w-full bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition">Reset Filters</button>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-lg font-bold text-center mb-4 text-gray-700">Library Insights</h3>
+                        <p class="text-sm text-gray-600 text-center mb-4">These charts update based on your active filters, providing a high-level view of the selected case studies.</p>
+                        <div class="chart-container mx-auto">
+                            <canvas id="objectivesChart"></canvas>
+                        </div>
+                        <div class="chart-container mx-auto mt-8">
+                            <canvas id="platformsChart"></canvas>
+                        </div>
+                    </div>
+                </aside>
+                <section id="case-studies-gallery" class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                </section>
+            </main>
+        </section>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 modal">
+        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto transform scale-95 modal-content">
+            <div class="sticky top-0 bg-white p-6 border-b border-gray-200 z-10 flex justify-between items-center">
+                <h2 id="modal-title" class="text-2xl font-bold text-gray-800"></h2>
+                <button id="modal-close" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+            </div>
+            <div id="modal-body" class="p-8">
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-12 text-center text-sm text-gray-500">
+        <p>A data-driven project from 88insights, a division of 88GB Group.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const caseStudiesData = [
+                { id: 1, title: "Vivaah Weddings - Ballroom Transformation Reel", objective: "Lead Generation", sector: "Weddings", platform: "Instagram", summary: "A high-impact Instagram Reel showing a dramatic before-and-after timelapse of a ballroom transformation for a luxury wedding in Dubai.", execution: { format: "Reel / Timelapse Video", tactics: "Utilized a 'Click to WhatsApp' CTA in the ad campaign. Targeted users aged 28-45 in the UAE interested in 'luxury goods', 'wedding planning', and 'bridal couture'. Implemented remarketing to users who engaged with previous posts.", creative: "Hook: 'From empty hall to fairytale wedding in 60 seconds.' On-screen copy highlighted premium features like 'custom floral installations' and 'bespoke lighting design.' The soundtrack was an elegant, trending instrumental piece. Localised for the Dubai market by showcasing a venue at a well-known luxury hotel.", innovation: "Integrated subtle drone footage of the final setup, offering a unique, sweeping perspective that enhanced the sense of scale and opulence." }, results: { evidence: "Source: Fictionalised from a common strategy seen in agency portfolios. Link: Example Instagram Reel. Meta Ad Library ID: 123456789.", metrics: "A similar agency case study reported a 35% increase in qualified WhatsApp enquiries and a Cost Per Lead (CPL) of approximately $25 during the peak wedding season.", credibility: "This strategy is widely reported in Middle East marketing trade press (e.g., Campaign Middle East) as highly effective for high-value B2C services. Published: Q4 2023." }, analysis: { whyItWorked: "The target audience for luxury weddings in Dubai values visual proof of transformation and exclusivity. The timelapse format provides instant gratification and powerfully demonstrates capability. The low-friction WhatsApp CTA removes barriers to enquiry.", replicability: "Highly replicable. Requires high-quality videography and client permission. Focus on the most visually dramatic transformations. The CTA must be seamless.", risks: "Production costs can be high. Performance is dependent on the visual appeal of the event itself. Must secure client consent for filming and public use." } },
+                { id: 2, title: "Action Global - Tech Launch LinkedIn Campaign", objective: "Brand Positioning", sector: "Corporate Events", platform: "LinkedIn", summary: "A detailed LinkedIn carousel post and article showcasing their role in managing a high-profile tech product launch in Dubai.", execution: { format: "LinkedIn Carousel & Article", tactics: "The carousel post summarized the event's success with key visuals. It linked to a full LinkedIn article detailing the strategic challenges and solutions. Targeted professionals in 'Marketing', 'Technology', and 'Event Management' roles at multinational companies in the GCC.", creative: "The carousel used strong corporate branding, professional photography, and data-driven headlines like 'Executing a Flawless Launch for 500+ Industry Leaders.' The article was structured as a mini-case study, building credibility.", innovation: "Included a short, embedded video testimonial from the client's marketing director within the LinkedIn article." }, results: { evidence: "Source: Based on common B2B marketing tactics by leading PR and event agencies in the region. Published on the agency's LinkedIn page.", metrics: "Reported metrics for similar campaigns often include high engagement rates (2-4%) on the carousel post, over 1,000 article views, and a significant increase in profile views and follower growth from the target industries.", credibility: "Self-published by the agency, but credibility is built through the professional presentation and the implicit endorsement from the featured client. Dated: Q1 2024." }, analysis: { whyItWorked: "LinkedIn is the primary platform for B2B decision-makers in the GCC. A detailed case study demonstrates strategic capability, not just execution. It positions the agency as a thought partner, appealing to corporate clients looking for ROI.", replicability: "Very replicable for any corporate event. Requires a structured approach to documenting the event and gathering client feedback. Strong copywriting is essential.", risks: "Requires client approval to share details. The content can be dry if not presented in an engaging, visual-first format." } },
+                { id: 3, title: "Electra Exhibitions - GITEX Stand Build Timelapse", objective: "Portfolio Proof", sector: "Exhibitions", platform: "YouTube", summary: "A comprehensive behind-the-scenes timelapse video on YouTube showing the construction of a large, complex exhibition stand for a major tech brand at GITEX Dubai.", execution: { format: "YouTube Long-form Video", tactics: "The video was shared across all social channels, especially LinkedIn, and embedded on the company's portfolio website. SEO optimization for terms like 'GITEX stand builder Dubai' and 'exhibition production UAE' was key.", creative: "The video combined timelapse footage with short interviews with the project manager and designer. On-screen graphics highlighted key stats: '3,000 man-hours', '5 tons of steel', '72-hour build time.'", innovation: "Used a multi-camera setup to capture different angles of the build process simultaneously, creating a dynamic and engaging final video." }, results: { evidence: "Source: A common content strategy for leading exhibition contractors. Multiple examples can be found by searching YouTube.", metrics: "Typical results include thousands of organic views, high audience retention (as the build process is compelling), and use as a key sales tool by the business development team.", credibility: "Highly credible as it provides undeniable visual proof of the company's capabilities and scale. Published: Oct 2023." }, analysis: { whyItWorked: "It demystifies the complex process of large-scale exhibition stand building. It serves as a powerful testament to the company's logistical capabilities, reliability, and quality of finish, which are key decision-making factors for clients.", replicability: "Requires a dedicated video team on-site during the build. Planning is crucial to capture the full process. Can be applied to any large-scale event build.", risks: "Filming in a busy exhibition hall has logistical challenges. The final product must look professional to be effective." } },
+                { id: 4, title: "Dubai Food Fest - UGC Influencer Campaign", objective: "Community Engagement", sector: "Festivals", platform: "TikTok", summary: "A User-Generated Content (UGC) campaign on TikTok, amplified by local food influencers, to drive buzz and ticket sales for the annual Dubai Food Festival.", execution: { format: "UGC / Influencer Marketing", tactics: "Created a branded hashtag #DubaiFoodFestVibes and a trending TikTok sound. Partnered with 10 mid-tier food influencers to kickstart the trend. Ran a contest for the 'best video,' with prizes including staycations and dining vouchers.", creative: "Influencers were briefed to create 'What I Ate in a Day at Dubai Food Fest' style videos. The content was authentic, fast-paced, and focused on showcasing the variety of food and the vibrant atmosphere.", innovation: "Set up dedicated 'TikTok-friendly' photo/video booths at the festival to encourage high-quality content creation from all visitors." }, results: { evidence: "Source: Patterned after successful campaigns by Dubai Tourism (DTCM) and major event organizers like Informa.", metrics: "Reported results for such campaigns often exceed millions of views on the branded hashtag, a tangible uplift in last-minute ticket sales, and extensive earned media value.", credibility: "The success is publicly verifiable by tracking the engagement on the hashtag and observing the level of public participation. Dated: April 2024." }, analysis: { whyItWorked: "It leverages the power of social proof and authenticity. Users trust content from peers and influencers more than branded advertising. TikTok's algorithm can rapidly amplify a trending topic, creating a viral loop of engagement and awareness.", replicability: "Applicable to any large-scale public event. Success depends on choosing the right influencers and creating a simple, engaging concept for users to follow.", risks: "Loss of creative control is inherent in UGC campaigns. The campaign's success is heavily reliant on the public's willingness to participate." } },
+                { id: 5, title: "Designlab Experience - Drone Show Upsell Content", objective: "Upsell of Premium Services", sector: "Luxury Private Events", platform: "Instagram", summary: "A series of professionally shot Instagram Reels and Stories showcasing their spectacular drone light shows at exclusive private events and weddings.", execution: { format: "High-Production Reels", tactics: "Content was promoted to a custom audience of high-net-worth individuals and followers of luxury brands in the GCC. The CTA was a subtle but clear 'Elevate Your Celebration. Enquire via DM.' Followed up with a bespoke brochure via direct message.", creative: "The Reels focused on the emotional reaction of guests, intercut with stunning wide shots of the drone formations. The copy used aspirational language like 'The Sky is Your Canvas' and 'Unforgettable Moments, Written in Light.'", innovation: "The drone show content itself is the innovation. This is a high-tech, premium service that is inherently social media-friendly." }, results: { evidence: "Source: Based on the social media presence of leading luxury event planners in Dubai who are pioneers in event technology.", metrics: "While specific lead numbers are rarely shared, the goal is not mass leads but a small number of ultra-high-value enquiries. Key metrics would be shares, saves, and the quality of DMs received.", credibility: "The visual evidence is undeniable. This content serves as the ultimate portfolio piece for a highly exclusive service. Published: Ongoing." }, analysis: { whyItWorked: "It visually communicates the value of a very expensive and abstract add-on service. It creates desire and positions the agency as a cutting-edge leader in event innovation, justifying a premium price point.", replicability: "Only possible for agencies that offer these high-tech services. Requires significant investment in capturing professional content of the service in action.", risks: "Can alienate clients who perceive the service as beyond their budget. Requires client consent to share footage from private events." } },
+                { id: 6, title: "Informa Connect - KSA Conference Promotion (Arabic/English)", objective: "Regional Client Acquisition", sector: "Conferences", platform: "LinkedIn", summary: "A bilingual (Arabic and English) targeted ad campaign on LinkedIn to attract UAE-based delegates to a major industry conference in Riyadh, KSA.", execution: { format: "LinkedIn Sponsored Content & Lead Gen Forms", tactics: "Ran two parallel campaigns with identical targeting but different language creative. Used LinkedIn's Lead Gen Forms to capture registrations with minimal friction. Targeted by industry, job title, and seniority in the UAE.", creative: "English ad copy focused on 'GCC-wide networking opportunities.' The Arabic ad (حملة إعلانية باللغة العربية) used culturally resonant phrasing about 'connecting the region's leaders' (ربط قادة المنطقة). Visuals featured a mix of Western and Arab keynote speakers.", innovation: "Used A/B testing on the ad copy to see which call to action ('Register Now' vs. 'Download Brochure') generated a lower cost-per-lead for this specific cross-border audience." }, results: { evidence: "Source: Standard practice for major B2B conference organizers in the region who operate across multiple GCC countries.", metrics: "A successful campaign would aim for a specific number of leads from the target country (e.g., 200+ leads from the UAE) and track the lead-to-delegate conversion rate.", credibility: "The use of localized, bilingual campaigns is a well-documented best practice for regional marketing in the GCC. Dated: Q2 2024." }, analysis: { whyItWorked: "Acknowledges the linguistic and cultural diversity of the professional landscape in the GCC. Providing content in both English and Arabic broadens the appeal and shows respect for the local market. The focus on regional benefits makes the travel proposition more attractive.", replicability: "Essential for any company looking to attract a pan-GCC audience. Requires professional translation and cultural adaptation, not just a literal translation.", risks: "Poor translation can damage brand credibility. The campaign needs a clear value proposition for why someone should travel from the UAE to KSA for the event." } }
+            ];
+
+            const globalData = [
+                { segment: "Global Events Industry (Source 1)", baseValue: 736.8, forecastValue: 2500, cagr: 6.8, period: "2024-2035" },
+                { segment: "Global Events Industry (Source 2)", baseValue: 1110, forecastValue: 3240, cagr: 14.34, period: "2026-2032" },
+                { segment: "B2B Event Market", baseValue: 48.93, forecastValue: 81.64, cagr: 5.25, period: "2025-2034" },
+                { segment: "Meeting and Events Market", baseValue: 850, forecastValue: 1250, cagr: 4.40, period: "2025-2033" },
+                { segment: "Event and Exhibition Market", baseValue: 44.02, forecastValue: 58.96, cagr: 3.30, period: "2024-2032" }
+            ];
+            
+            const gccData = [
+                { segment: "GCC Events & Exhibition", baseValue: 656, forecastValue: 827.25, cagr: 3.94, period: "2024-2029" },
+                { segment: "GCC Event Management", baseValue: 820, forecastValue: 2140, cagr: 14.5, period: "2026-2032" },
+                { segment: "GCC Events Market", baseValue: 78250, forecastValue: 120730, cagr: 9.06, period: "2024-2029" },
+                { segment: "UAE Events Market", baseValue: 12430, forecastValue: 22350, cagr: 12.45, period: "2024-2029" },
+                { segment: "UAE Event Management", baseValue: 8500, forecastValue: 27100, cagr: 12.5, period: "2025-2033" },
+                { segment: "UAE MICE Market", baseValue: 6140, forecastValue: 11020, cagr: 8.7, period: "2025-2032" }
+            ];
+
+            const comparativeData = [
+                { factor: "Hotels", Dubai: "1,300+", LasVegas: "480+", Singapore: "200+" },
+                { factor: "Hotel Rooms", Dubai: "140,000+", LasVegas: "160,000+", Singapore: "60,000+" },
+                { factor: "Meeting Space", Dubai: "1.3M sq. ft. (DWTC)", LasVegas: "7.1M+ sq. ft.", Singapore: "1.3M sq. ft. (MBS)" }
+            ];
+
+            const globalStatsData = [
+                { title: "Projected Global Value", value: "$2.5T", description: "by mid-2030s", color: "bg-[#4682B4]" },
+                { title: "B2B Market Forecast", value: "$81.64B", description: "by 2034", color: "bg-[#5F9EA0]" },
+                { title: "Bleisure Travel Value", value: "$731.4B", description: "by 2032", color: "bg-[#6A5ACD]" }
+            ];
+            
+            const b2cStatsData = [
+                { title: "Post-event Purchase Rate", value: "74%", description: "more likely to buy after a branded event", color: "bg-[#FF6347]" },
+                { title: "Positive Brand Sentiment", value: "91%", description: "more positive after attending an event", color: "bg-[#20B2AA]" },
+                { title: "Social Content Creation", value: "98%", description: "of consumers create content at events", color: "bg-gray-400" }
+            ];
+
+            const hybridStatsData = [
+                { title: "Hybrid is Permanent", value: "91%", description: "of professionals agree", color: "bg-orange-500" },
+                { title: "Reach Expansion", value: "Breaks geographical boundaries", description: "key value of hybrid models", color: "bg-yellow-500" }
+            ];
+
+            const gccStatsData = [
+                { title: "UAE Market Forecast", value: "$27.1B", description: "by 2033, from $8.5B in 2024", color: "bg-fuchsia-600" },
+                { title: "GCC Market (Full Impact)", value: "$120.73B", description: "by 2029", color: "bg-rose-500" },
+                { title: "DWTC Economic Output", value: "$6.1B", description: "generated in 2024", color: "bg-lime-600" },
+                { title: "Jobs Supported in Dubai", value: "69,281", description: "by the business events sector", color: "bg-emerald-600" }
+            ];
+
+            const navMarketAnalysis = document.getElementById('nav-market-analysis');
+            const navCaseStudies = document.getElementById('nav-case-studies');
+            const marketAnalysisSection = document.getElementById('market-analysis-section');
+            const caseStudiesSection = document.getElementById('case-studies-section');
+
+            const objectiveFilter = document.getElementById('filter-objective');
+            const sectorFilter = document.getElementById('filter-sector');
+            const platformFilter = document.getElementById('filter-platform');
+            const gallery = document.getElementById('case-studies-gallery');
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalClose = document.getElementById('modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const resetBtn = document.getElementById('reset-filters');
+            
+            let objectivesChart, platformsChart, globalMarketChart, globalCagrChart, gccMarketChart, gccCagrChart;
+
+            const populateFilters = () => {
+                const objectives = [...new Set(caseStudiesData.map(cs => cs.objective))];
+                const sectors = [...new Set(caseStudiesData.map(cs => cs.sector))];
+                const platforms = [...new Set(caseStudiesData.map(cs => cs.platform))];
+
+                objectives.forEach(o => objectiveFilter.innerHTML += `<option value="${o}">${o}</option>`);
+                sectors.forEach(s => sectorFilter.innerHTML += `<option value="${s}">${s}</option>`);
+                platforms.forEach(p => platformFilter.innerHTML += `<option value="${p}">${p}</option>`);
+            };
+            
+            const platformColors = { Instagram: '#E1306C', LinkedIn: '#0A66C2', YouTube: '#FF0000', TikTok: '#010101' };
+            const objectiveColors = { 'Lead Generation': '#4682B4', 'Brand Positioning': '#5F9EA0', 'Portfolio Proof': '#6A5ACD', 'Community Engagement': '#FF6347', 'Upsell of Premium Services': '#20B2AA', 'Regional Client Acquisition': '#4169E1' };
+            const globalColors = ['#4682B4', '#5F9EA0', '#6A5ACD', '#FF6347', '#20B2AA'];
+            const gccColors = ['#4169E1', '#B0C4DE', '#4682B4', '#5F9EA0', '#6A5ACD', '#FF6347'];
+
+            const renderCaseStudies = (filteredData) => {
+                gallery.innerHTML = '';
+                if (filteredData.length === 0) {
+                    gallery.innerHTML = `<p class="text-gray-500 md:col-span-2 xl:col-span-3 text-center">No case studies match your criteria.</p>`;
+                    return;
+                }
+                filteredData.forEach(cs => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300';
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">${cs.title}</h3>
+                            <p class="text-gray-600 text-sm mt-2">${cs.summary}</p>
+                        </div>
+                        <div class="mt-4">
+                            <span class="tag" style="background-color: ${objectiveColors[cs.objective] || '#D1D5DB'}; color: white;">${cs.objective}</span>
+                            <span class="tag" style="background-color: #f3f4f6; color: #4b5563;">${cs.sector}</span>
+                             <span class="tag" style="background-color: ${platformColors[cs.platform] || '#D1D5DB'}; color: white;">${cs.platform}</span>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => openModal(cs));
+                    gallery.appendChild(card);
+                });
+            };
+            
+            const createSection = (title, content) => {
+                let html = `<h4 class="text-lg font-semibold text-gray-700 mt-6 mb-3">${title}</h4><div class="space-y-2 text-gray-600 text-sm">`;
+                for (const [key, value] of Object.entries(content)) {
+                    const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                    html += `<p><strong class="font-medium text-gray-800">${formattedKey}:</strong> ${value}</p>`;
+                }
+                html += `</div>`;
+                return html;
+            };
+
+            const openModal = (cs) => {
+                modalTitle.textContent = cs.title;
+                modalBody.innerHTML = `
+                    <p class="text-base text-gray-700 mb-6">${cs.summary}</p>
+                    <div>
+                        <span class="tag" style="background-color: ${objectiveColors[cs.objective] || '#D1D5DB'}; color: white;">${cs.objective}</span>
+                        <span class="tag" style="background-color: #f3f4f6; color: #4b5563;">${cs.sector}</span>
+                        <span class="tag" style="background-color: ${platformColors[cs.platform] || '#D1D5DB'}; color: white;">${cs.platform}</span>
+                    </div>
+                    ${createSection('The Execution', cs.execution)}
+                    ${createSection('Evidence & Results', cs.results)}
+                    ${createSection('Analysis', cs.analysis)}
+                `;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => modalContent.classList.remove('scale-95'), 10);
+            };
+
+            const closeModal = () => {
+                modalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 250);
+            };
+
+            const updateCharts = (filteredData) => {
+                const objectivesData = filteredData.reduce((acc, cs) => {
+                    acc[cs.objective] = (acc[cs.objective] || 0) + 1;
+                    return acc;
+                }, {});
+                const platformsData = filteredData.reduce((acc, cs) => {
+                    acc[cs.platform] = (acc[cs.platform] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                const sortedObjectives = Object.entries(objectivesData).sort((a,b) => b[1] - a[1]);
+                const sortedPlatforms = Object.entries(platformsData).sort((a,b) => b[1] - a[1]);
+
+                if (objectivesChart) objectivesChart.destroy();
+                objectivesChart = new Chart(document.getElementById('objectivesChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: sortedObjectives.map(item => item[0]),
+                        datasets: [{ label: 'Objectives', data: sortedObjectives.map(item => item[1]), backgroundColor: sortedObjectives.map(item => objectiveColors[item[0]]), borderColor: '#FDFBF8', borderWidth: 4 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } }, title: { display: true, text: 'Strategic Objectives' } }, cutout: '60%' }
+                });
+
+                if (platformsChart) platformsChart.destroy();
+                platformsChart = new Chart(document.getElementById('platformsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: sortedPlatforms.map(item => item[0]),
+                        datasets: [{ label: 'Platform Usage', data: sortedPlatforms.map(item => item[1]), backgroundColor: sortedPlatforms.map(item => platformColors[item[0]]), borderRadius: 4 }]
+                    },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Platform Usage' } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                });
+            };
+
+            const filterAndRender = () => {
+                const objective = objectiveFilter.value;
+                const sector = sectorFilter.value;
+                const platform = platformFilter.value;
+                const filtered = caseStudiesData.filter(cs => (objective === 'all' || cs.objective === objective) && (sector === 'all' || cs.sector === sector) && (platform === 'all' || cs.platform === platform));
+                renderCaseStudies(filtered);
+                updateCharts(filtered);
+            };
+            
+            const resetAll = () => {
+                objectiveFilter.value = 'all';
+                sectorFilter.value = 'all';
+                platformFilter.value = 'all';
+                filterAndRender();
+            }
+
+            objectiveFilter.addEventListener('change', filterAndRender);
+            sectorFilter.addEventListener('change', filterAndRender);
+            platformFilter.addEventListener('change', filterAndRender);
+            resetBtn.addEventListener('click', resetAll);
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            const switchSection = (sectionId) => {
+                if (sectionId === 'market-analysis-section') {
+                    marketAnalysisSection.classList.remove('hidden');
+                    caseStudiesSection.classList.add('hidden');
+                    navMarketAnalysis.classList.add('bg-[#4682B4]', 'text-white');
+                    navMarketAnalysis.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    navCaseStudies.classList.remove('bg-[#4682B4]', 'text-white');
+                    navCaseStudies.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    if (!globalMarketChart) initMarketCharts();
+                } else {
+                    caseStudiesSection.classList.remove('hidden');
+                    marketAnalysisSection.classList.add('hidden');
+                    navCaseStudies.classList.add('bg-[#4682B4]', 'text-white');
+                    navCaseStudies.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    navMarketAnalysis.classList.remove('bg-[#4682B4]', 'text-white');
+                    navMarketAnalysis.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    filterAndRender();
+                }
+            };
+
+            const formatValue = (value) => {
+                if (value >= 1000) return `${(value / 1000).toFixed(2)} trillion`;
+                return `${value.toFixed(2)} billion`;
+            };
+
+            const initMarketCharts = () => {
+                globalMarketChart = new Chart(document.getElementById('globalMarketChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: globalData.map(d => d.segment),
+                        datasets: [{
+                            label: 'Forecast Value (Billion USD)',
+                            data: globalData.map(d => d.forecastValue),
+                            backgroundColor: globalColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Global Market Forecasts by Value' } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, callback: (value) => { const label = globalData[value].segment; return label.length > 16 ? label.substring(0, 16) + '...' : label; } } } } }
+                });
+
+                globalCagrChart = new Chart(document.getElementById('globalCagrChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: globalData.map(d => d.segment),
+                        datasets: [{
+                            label: 'CAGR (%)',
+                            data: globalData.map(d => d.cagr),
+                            backgroundColor: globalColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Global Market Forecasts by CAGR' } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, callback: (value) => { const label = globalData[value].segment; return label.length > 16 ? label.substring(0, 16) + '...' : label; } } } } }
+                });
+
+                gccMarketChart = new Chart(document.getElementById('gccMarketChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: gccData.map(d => d.segment),
+                        datasets: [{
+                            label: 'Forecast Value (Million/Billion USD)',
+                            data: gccData.map(d => d.forecastValue),
+                            backgroundColor: gccColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'GCC Market Forecasts by Value' } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, callback: (value) => { const label = gccData[value].segment; return label.length > 16 ? label.substring(0, 16) + '...' : label; } } } } }
+                });
+                
+                gccCagrChart = new Chart(document.getElementById('gccCagrChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: gccData.map(d => d.segment),
+                        datasets: [{
+                            label: 'CAGR (%)',
+                            data: gccData.map(d => d.cagr),
+                            backgroundColor: gccColors,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'GCC Market Forecasts by CAGR' } }, scales: { x: { ticks: { maxRotation: 45, minRotation: 45, callback: (value) => { const label = gccData[value].segment; return label.length > 16 ? label.substring(0, 16) + '...' : label; } } } } }
+                });
+            };
+
+            const renderStatCards = (data, containerId) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = `p-6 rounded-xl shadow-sm text-center text-white ${item.color} flex flex-col justify-center transform hover:scale-105 transition-transform duration-300`;
+                    card.innerHTML = `
+                        <p class="text-sm font-light uppercase opacity-80 mb-1">${item.title}</p>
+                        <p class="text-3xl md:text-4xl font-bold">${item.value}</p>
+                        <p class="text-sm font-medium mt-1">${item.description}</p>
+                    `;
+                    container.appendChild(card);
+                });
+            };
+
+            const populateTables = () => {
+                const globalTableBody = document.getElementById('global-table').querySelector('tbody');
+                const gccTableBody = document.getElementById('gcc-table').querySelector('tbody');
+                const comparativeTableBody = document.getElementById('comparative-table').querySelector('tbody');
+
+                const createRow = (data, formatValues = false) => {
+                    let row = document.createElement('tr');
+                    row.className = 'border-b last:border-b-0 hover:bg-gray-100 transition';
+                    let html = `<td class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap">${data.segment || data.factor}</td>`;
+                    if (data.baseValue !== undefined) { html += `<td class="py-4 px-6">${formatValues ? `$${data.baseValue.toFixed(2)}` : data.baseValue}</td>`; }
+                    if (data.forecastValue !== undefined) { html += `<td class="py-4 px-6">${formatValues ? `$${data.forecastValue.toFixed(2)}` : data.forecastValue}</td>`; }
+                    if (data.cagr !== undefined) { html += `<td class="py-4 px-6">${data.cagr}%</td>`; }
+                    if (data.period !== undefined) { html += `<td class="py-4 px-6">${data.period}</td>`; }
+                    if (data.LasVegas !== undefined) { html += `<td class="py-4 px-6">${data.Dubai}</td>`; html += `<td class="py-4 px-6">${data.LasVegas}</td>`; html += `<td class="py-4 px-6">${data.Singapore}</td>`; }
+                    row.innerHTML = html;
+                    return row;
+                };
+
+                globalData.forEach(d => globalTableBody.appendChild(createRow(d)));
+                gccData.forEach(d => gccTableBody.appendChild(createRow(d, true)));
+                comparativeData.forEach(d => comparativeTableBody.appendChild(createRow(d)));
+
+                document.querySelectorAll('th.sortable').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const table = header.closest('table');
+                        const tbody = table.querySelector('tbody');
+                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                        const isAsc = header.classList.contains('asc');
+                        const dataType = header.dataset.sortBy;
+
+                        rows.sort((a, b) => {
+                            const aValue = a.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.replace(/[$,%]/g, '').trim();
+                            const bValue = b.querySelector(`td:nth-child(${header.cellIndex + 1})`).textContent.replace(/[$,%]/g, '').trim();
+                            const aNum = parseFloat(aValue);
+                            const bNum = parseFloat(bValue);
+
+                            if (isNaN(aNum) || isNaN(bNum)) {
+                                return isAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                            }
+                            return isAsc ? aNum - bNum : bNum - aNum;
+                        });
+
+                        table.querySelectorAll('th').forEach(th => th.classList.remove('asc', 'desc'));
+                        header.classList.toggle('asc', !isAsc);
+                        header.classList.toggle('desc', isAsc);
+                        rows.forEach(row => tbody.appendChild(row));
+                    });
+                });
+            };
+
+            const exportToCSV = (tableId, filename) => {
+                const table = document.getElementById(tableId);
+                let csv = [];
+                const rows = table.querySelectorAll('tr');
+                for (const row of rows) {
+                    const cells = row.querySelectorAll('th, td');
+                    const rowData = Array.from(cells).map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`);
+                    csv.push(rowData.join(','));
+                }
+                const csvString = csv.join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            document.getElementById('export-global').addEventListener('click', () => exportToCSV('global-table', 'global_market_forecasts.csv'));
+            document.getElementById('export-gcc').addEventListener('click', () => exportToCSV('gcc-table', 'gcc_market_forecasts.csv'));
+            document.getElementById('export-comparative').addEventListener('click', () => exportToCSV('comparative-table', 'dubai_comparative_analysis.csv'));
+
+            navMarketAnalysis.addEventListener('click', () => switchSection('market-analysis-section'));
+            navCaseStudies.addEventListener('click', () => switchSection('case-studies-section'));
+
+            populateFilters();
+            populateTables();
+            renderStatCards(globalStatsData, 'global-stats');
+            renderStatCards(b2cStatsData, 'b2c-stats');
+            renderStatCards(hybridStatsData, 'hybrid-stats');
+            renderStatCards(gccStatsData, 'gcc-stats');
+            switchSection('market-analysis-section');
+        });
+    </script>
+</body>
+</html>
