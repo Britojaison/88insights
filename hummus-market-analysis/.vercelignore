@@ -1,0 +1,5 @@
+header.php
+*.php
+node_modules/
+.git/
+*.log

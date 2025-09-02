@@ -1,0 +1,19 @@
+{
+  "name": "hummus-market-analysis",
+  "version": "1.0.0",
+  "description": "Interactive analysis of the Indian hummus market",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 3000",
+    "build": "echo 'Static site - no build required'"
+  },
+  "keywords": [
+    "hummus",
+    "market-analysis",
+    "india",
+    "interactive",
+    "dashboard"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

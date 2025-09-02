@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rise of Hummus in India: An Interactive Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Earthy Spice -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey for a potential investor. It starts with a high-impact hero section with key growth metrics. It then flows into thematic, interactive sections: 1) A Market Dashboard to explore size, growth, and segments; 2) A deep-dive into the Target Consumer profile; 3) A focus on the core challenge and opportunity of Flavor Innovation; 4) An interactive Competitive Landscape analysis; 5) A visual breakdown of Distribution Channels, highlighting Quick-Commerce; and 6) A clear, actionable Strategic Roadmap. This structure guides the user from "what is the opportunity?" to "how can I act on it?", prioritizing usability and data exploration over the report's linear format. -->
+    <!-- Visualization & Content Choices: 1) Market Growth: Line Chart (Chart.js) to show trend over time. 2) Market Segments: Doughnut Chart (Chart.js) for part-to-whole comparison, with interactive legend. 3) Brand Pricing: Interactive HTML table with JS sorting for easy comparison. 4) Distribution Flow: HTML/CSS diagram for visual clarity. 5) Strategic Plan: Accordion UI to present dense information cleanly. These choices use the best tool for each data type, ensuring clarity and engagement while adhering to the NO SVG/Mermaid constraint. The entire application is built to support the user's journey of discovery through the data. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-link.active {
+            color: #D97706;
+            border-bottom: 2px solid #D97706;
+        }
+        .section-card {
+            background-color: #FFFFFF;
+            border: 1px solid #F3EFEA;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .stat-card {
+             background-color: #FAF7F4;
+             border-radius: 0.75rem;
+             padding: 1.5rem;
+             text-align: center;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #D97706;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200/50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-amber-700">Hummus Market India</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a data-target="market" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-600">Market Overview</a>
+                        <a data-target="consumer" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-600">The Consumer</a>
+                        <a data-target="competition" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-600">Competition</a>
+                        <a data-target="distribution" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-600">Distribution</a>
+                        <a data-target="strategy" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-amber-600">Strategy</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 mb-4">
+                India's Hummus Market: A High-Growth Opportunity
+            </h1>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-8">
+                An emergent and dynamic segment poised for exceptional growth, driven by health-conscious urban consumers and the rise of quick-commerce. Explore the data-driven insights below.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="stat-card">
+                    <p class="text-4xl font-bold text-amber-600">$174.4M</p>
+                    <p class="text-sm font-medium text-gray-500 mt-1">Market Size (2024)</p>
+                </div>
+                <div class="stat-card">
+                    <p class="text-4xl font-bold text-amber-600">13.2%</p>
+                    <p class="text-sm font-medium text-gray-500 mt-1">Projected CAGR (2025-30)</p>
+                </div>
+                <div class="stat-card">
+                    <p class="text-4xl font-bold text-amber-600">$367.6M</p>
+                    <p class="text-sm font-medium text-gray-500 mt-1">Forecasted Size (2030)</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2">Market Dynamics Dashboard</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">This section provides a dynamic view of the Indian hummus market's size, growth trajectory, and product segmentation. Click the buttons to switch between different data visualizations and gain a comprehensive understanding of the market's key financial indicators and consumer preferences.</p>
+            <div class="section-card p-6 md:p-8">
+                <div class="flex justify-center mb-6 border border-gray-200 rounded-lg p-1 max-w-md mx-auto">
+                    <button id="btn-growth" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md">Market Growth</button>
+                    <button id="btn-segment" class="tab-button flex-1 py-2 px-4 text-sm font-medium rounded-md">Product Segments</button>
+                </div>
+                <div id="chart-view" class="chart-container">
+                    <canvas id="marketChart"></canvas>
+                </div>
+                <div id="insight-text" class="mt-6 text-center text-gray-700 bg-amber-50 p-4 rounded-lg max-w-2xl mx-auto">
+                </div>
+            </div>
+        </section>
+
+        <section id="consumer" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2">The Modern Indian Consumer</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">The market's expansion is driven by a specific consumer demographic. This section profiles the core hummus buyer, detailing their lifestyle, motivations, and the cultural nuances that shape their purchasing decisions, including the critical need for flavor innovation.</p>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="space-y-6">
+                    <div class="section-card p-6">
+                        <h3 class="font-bold text-lg mb-2 text-amber-700">Core Consumer Profile</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li class="flex items-start"><span class="mr-2 text-amber-600">🏙️</span> <strong>Urban & Affluent:</strong> Primarily residing in metropolitan areas with higher disposable income.</li>
+                            <li class="flex items-start"><span class="mr-2 text-amber-600">👩‍💻</span> <strong>Young & Digital:</strong> Millennials and Gen Z who are tech-savvy and influenced by online trends.</li>
+                            <li class="flex items-start"><span class="mr-2 text-amber-600">🥗</span> <strong>Health-Conscious:</strong> Actively seek nutritious, plant-based, and clean-label food options.</li>
+                             <li class="flex items-start"><span class="mr-2 text-amber-600">🏃‍♀️</span> <strong>Convenience-Driven:</strong> Value ready-to-eat products that fit into a busy lifestyle.</li>
+                        </ul>
+                    </div>
+                    <div class="section-card p-6">
+                        <h3 class="font-bold text-lg mb-2 text-amber-700">The Flavor Imperative: From Bland to Bold</h3>
+                        <p class="text-gray-600">A key cultural barrier is the perception of classic hummus as "bland." Success hinges on "Indianization." Brands are infusing traditional recipes with local spices, creating variants like Tandoori, Peri Peri, and Chaat Masala to appeal to the Indian palate and position hummus as a versatile, modern "chutney."</p>
+                    </div>
+                </div>
+                <div class="section-card p-6 md:p-8">
+                     <h3 class="font-bold text-lg mb-4 text-center text-amber-700">Key Purchasing Drivers</h3>
+                     <div class="space-y-4">
+                        <div>
+                            <p class="font-semibold">Health & Wellness</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div></div>
+                            <p class="text-xs text-gray-500 mt-1">High in protein & fiber, plant-based, gluten-free.</p>
+                        </div>
+                         <div>
+                            <p class="font-semibold">Convenience</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-blue-500 h-2.5 rounded-full" style="width: 80%"></div></div>
+                            <p class="text-xs text-gray-500 mt-1">Ready-to-eat and suitable for on-the-go snacking.</p>
+                        </div>
+                         <div>
+                            <p class="font-semibold">Cultural Familiarity</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1"><div class="bg-yellow-500 h-2.5 rounded-full" style="width: 65%"></div></div>
+                            <p class="text-xs text-gray-500 mt-1">The core ingredient, chickpeas (*kabuli chana*), is a dietary staple.</p>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="competition" class="mb-16 scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2">Competitive Landscape</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">The market features a mix of established domestic brands and regional players, with international brands facing significant entry barriers. This section provides an interactive pricing analysis of key players, highlighting their market positioning and the strategic advantage held by local manufacturers.</p>
+            <div class="section-card overflow-hidden">
+                <div class="p-6 md:p-8">
+                     <div class="md:flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg text-amber-700 mb-2 md:mb-0">Brand Pricing Analysis</h3>
+                        <p class="text-sm text-gray-500">Click headers to sort table</p>
+                     </div>
+                    <div class="overflow-x-auto">
+                        <table id="brandsTable" class="w-full text-sm text-left text-gray-500">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 cursor-pointer" data-sort="brand">Brand</th>
+                                    <th scope="col" class="px-6 py-3 cursor-pointer" data-sort="price">Price (₹)</th>
+                                    <th scope="col" class="px-6 py-3 cursor-pointer" data-sort="weight">Weight (g)</th>
+                                    <th scope="col" class="px-6 py-3 cursor-pointer" data-sort="price_per_100g">Price/100g (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="distribution" class="mb-16 scroll-mt-20">
+             <h2 class="text-3xl font-bold text-center mb-2">Distribution & Logistics</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Getting a perishable product to consumers is a major challenge. This section outlines the key distribution channels and highlights the transformative role of Quick-Commerce in solving cold chain issues and enabling rapid market growth, especially in urban centers.</p>
+            <div class="section-card p-6 md:p-8">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-amber-700">The Cold Chain Challenge</h3>
+                        <p class="text-gray-600 mb-4">India's underdeveloped cold chain logistics is the primary barrier to expansion. Lack of refrigerated transport and unreliable power limits reach to major cities, making product spoilage a significant risk.</p>
+                        <h3 class="font-bold text-lg mb-4 text-amber-700">The Quick-Commerce Solution</h3>
+                        <p class="text-gray-600">Platforms like Zepto and Blinkit are game-changers. Using a network of "dark stores," they ensure cold chain integrity and deliver hummus in 10-30 minutes. This model is not just a channel; it's a critical enabler for the entire chilled dips category.</p>
+                    </div>
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <div class="p-3 bg-blue-100 text-blue-800 rounded-lg font-semibold">Manufacturer</div>
+                        <div class="text-2xl">↓</div>
+                        <div class="flex space-x-4">
+                            <div class="p-3 bg-green-100 text-green-800 rounded-lg text-center">
+                                <p class="font-semibold">Retail</p>
+                                <p class="text-xs">(Supermarkets)</p>
+                            </div>
+                            <div class="p-3 bg-purple-100 text-purple-800 rounded-lg text-center border-2 border-purple-400 shadow-lg">
+                                <p class="font-semibold">⚡ Q-Commerce</p>
+                                <p class="text-xs">(Zepto, Blinkit)</p>
+                            </div>
+                        </div>
+                        <div class="text-2xl">↓</div>
+                        <div class="p-3 bg-amber-100 text-amber-800 rounded-lg font-semibold">End Consumer</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="strategy" class="scroll-mt-20">
+            <h2 class="text-3xl font-bold text-center mb-2">Strategic Roadmap for Success</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">For new entrants and existing players, capturing market share requires a multi-faceted approach. This section provides actionable recommendations across product, pricing, distribution, and marketing, outlining a clear path to navigate the market's challenges and capitalize on its immense growth potential.</p>
+            <div class="space-y-4 max-w-3xl mx-auto">
+                <div class="accordion-item section-card">
+                    <button class="accordion-header w-full flex justify-between items-center text-left p-5 font-semibold">
+                        <span>Product Strategy: "The Healthy, Versatile Chutney"</span>
+                        <span class="accordion-icon text-amber-600 text-2xl">-</span>
+                    </button>
+                    <div class="accordion-content overflow-hidden max-h-screen transition-all duration-500 ease-in-out">
+                        <div class="p-5 pt-0 text-gray-600">
+                            Focus on a core portfolio of "Indianized" flavors (Tandoori, Peri Peri) to build loyalty. Introduce alternative-base hummuses (e.g., lentil) and fortified options (e.g., with probiotics) to innovate. Position the product as a modern, healthy alternative to traditional chutneys.
+                        </div>
+                    </div>
+                </div>
+                 <div class="accordion-item section-card">
+                    <button class="accordion-header w-full flex justify-between items-center text-left p-5 font-semibold">
+                        <span>Distribution Strategy: "Digital First"</span>
+                         <span class="accordion-icon text-amber-600 text-2xl">+</span>
+                    </button>
+                    <div class="accordion-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                        <div class="p-5 pt-0 text-gray-600">
+                            Prioritize strategic partnerships with quick-commerce platforms to reach the target urban consumer. Complement this with a strong presence in the refrigerated sections of modern supermarkets and hypermarkets for brand visibility and broader reach.
+                        </div>
+                    </div>
+                </div>
+                 <div class="accordion-item section-card">
+                    <button class="accordion-header w-full flex justify-between items-center text-left p-5 font-semibold">
+                        <span>Marketing Strategy: "Engage the Digital Native"</span>
+                         <span class="accordion-icon text-amber-600 text-2xl">+</span>
+                    </button>
+                    <div class="accordion-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                        <div class="p-5 pt-0 text-gray-600">
+                            Leverage social media and digital marketing campaigns targeting millennials and Gen Z. Use engaging visual content (reels, videos) to showcase hummus's versatility with Indian foods like parathas, dosas, and pakoras, emphasizing its health benefits and convenience.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-100 mt-16">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm text-gray-500">
+            <p>Interactive Report generated from source data. For illustrative and analytical purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const marketChartCanvas = document.getElementById('marketChart');
+            const insightText = document.getElementById('insight-text');
+            const btnGrowth = document.getElementById('btn-growth');
+            const btnSegment = document.getElementById('btn-segment');
+            let currentChart;
+
+            const growthData = {
+                labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
+                datasets: [{
+                    label: 'Market Size (USD Million)',
+                    data: [174.4, 197.4, 223.5, 253.0, 286.4, 324.2, 367.6],
+                    borderColor: '#D97706',
+                    backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            };
+
+            const segmentData = {
+                labels: ['Classic Hummus', 'Flavored & Alternative-Base Hummus'],
+                datasets: [{
+                    label: 'Revenue Share 2024',
+                    data: [41.86, 58.14],
+                    backgroundColor: ['#FBBF24', '#D97706'],
+                    hoverOffset: 4
+                }]
+            };
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y) + 'M';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value + 'M';
+                            }
+                        }
+                    }
+                }
+            };
+
+            function createChart(type, data, options) {
+                if (currentChart) {
+                    currentChart.destroy();
+                }
+                currentChart = new Chart(marketChartCanvas, { type, data, options });
+            }
+
+            function showGrowthChart() {
+                const growthOptions = {...chartOptions};
+                delete growthOptions.scales.y.ticks; 
+                growthOptions.scales = { y: { beginAtZero: false, ticks: { callback: (value) => `$${value}M` } } };
+                createChart('line', growthData, growthOptions);
+                insightText.textContent = 'The Indian hummus market is projected to grow at a robust 13.2% CAGR, more than doubling in size from $174.4M in 2024 to $367.6M by 2030.';
+                btnGrowth.classList.add('active');
+                btnSegment.classList.remove('active');
+            }
+
+            function showSegmentChart() {
+                const segmentOptions = {...chartOptions};
+                delete segmentOptions.scales;
+                segmentOptions.plugins.tooltip.callbacks.label = function(context) {
+                    let label = context.label || '';
+                    if (label) { label += ': '; }
+                    if (context.parsed !== null) { label += context.parsed + '%'; }
+                    return label;
+                };
+                createChart('doughnut', segmentData, segmentOptions);
+                insightText.textContent = 'While Classic Hummus holds a significant 41.86% share, the market is rapidly shifting. Flavored and alternative-base hummuses are the fastest-growing segments, signaling a consumer demand for innovation and variety.';
+                btnSegment.classList.add('active');
+                btnGrowth.classList.remove('active');
+            }
+
+            btnGrowth.addEventListener('click', showGrowthChart);
+            btnSegment.addEventListener('click', showSegmentChart);
+            
+            showGrowthChart();
+
+            const brandData = [
+                { brand: 'Gourmaison India', price: 450, weight: 200, price_per_100g: 225.00 },
+                { brand: 'All That Dips', price: 200, weight: 100, price_per_100g: 200.00 },
+                { brand: 'Wingreens Farms', price: 200, weight: 150, price_per_100g: 133.33 },
+                { brand: 'Herbivore Farms', price: 133, weight: 100, price_per_100g: 133.00 },
+                { brand: 'Damai International', price: 180, weight: 200, price_per_100g: 90.00 },
+                { brand: 'Earthy Bliss', price: 230, weight: null, price_per_100g: null },
+            ];
+            
+            const tableBody = document.querySelector('#brandsTable tbody');
+            let sortDirection = {};
+
+            function renderTable(data) {
+                tableBody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'bg-white border-b hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${item.brand}</td>
+                        <td class="px-6 py-4">₹${item.price.toFixed(2)}</td>
+                        <td class="px-6 py-4">${item.weight ? item.weight + 'g' : 'N/A'}</td>
+                        <td class="px-6 py-4 font-semibold">${item.price_per_100g ? '₹' + item.price_per_100g.toFixed(2) : 'N/A'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            document.querySelectorAll('#brandsTable th').forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortKey = header.dataset.sort;
+                    const direction = (sortDirection[sortKey] || 'asc') === 'asc' ? 'desc' : 'asc';
+                    sortDirection = { [sortKey]: direction };
+
+                    brandData.sort((a, b) => {
+                        if (a[sortKey] === null) return 1;
+                        if (b[sortKey] === null) return -1;
+                        if (a[sortKey] < b[sortKey]) return direction === 'asc' ? -1 : 1;
+                        if (a[sortKey] > b[sortKey]) return direction === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+                    renderTable(brandData);
+                });
+            });
+
+            renderTable(brandData);
+
+            document.querySelectorAll('.accordion-header').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.accordion-icon');
+                    
+                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                        content.style.maxHeight = '0px';
+                        icon.textContent = '+';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                        icon.textContent = '-';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('data-target');
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80, 
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 90) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-target') === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
+
+
+
